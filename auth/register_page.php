@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -101,6 +103,15 @@
             color: #2575fc;
         }
     </style>
+    <?php
+    $error = isset($_GET['error']) ? htmlspecialchars($_GET['error']) : null;
+    ?>
+    <script>
+        const errorMessage = "<?php echo $error; ?>";
+        if (errorMessage) {
+            alert(errorMessage);
+        }
+    </script>
 </head>
 <body>
     <div class="register-container">
@@ -127,7 +138,7 @@
                 <input type="text" name="address" id="address" placeholder="Nhập địa chỉ của bạn (không bắt buộc)">
             </div>
             <button type="submit">Đăng ký</button>
-            <p>Đã có tài khoản? <a href="login.php">Đăng nhập</a></p>
+            <p>Đã có tài khoản? <a href="../auth/login_page.php">Đăng nhập</a></p>
         </form>
     </div>
 </body>

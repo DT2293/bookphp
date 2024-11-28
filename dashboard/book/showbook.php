@@ -49,20 +49,55 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Danh sách Sách</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .hover-link:hover {
+            color: #6a11cb;
+            text-decoration: underline;
+            transition: color 0.3s ease, text-decoration 0.3s ease;
+        }
+        .container-header {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .nav-item {
+            margin-right: 20px;
+        }
+        .btn-logout {
+            margin-left: 20px;
+        }
+    </style>
 </head>
 <body>
+<div class="bg-light py-2 px-3">
+  <div class="container py-2 bg-light rounded shadow-sm">
+    <div class="d-flex align-items-center justify-content-between">
+        <p class="mb-0">
+            <strong>Xin chào, <?php echo htmlspecialchars($_SESSION['FullName'] ?? 'Admin'); ?></strong>
+        </p>
+        <div class="d-flex gap-4">
+            <a href="../admin.php" class="text-decoration-none text-dark hover-link">Home</a>
+            <a href="../statistical/statistical.php" class="text-decoration-none text-dark hover-link">Quản lý Thống kê</a>
+            <a href="../../dashboard/user/showuser.php" class="text-decoration-none text-dark hover-link">Quản lý người dùng</a>
+            <a href="" class="text-decoration-none text-dark hover-link">Quản lý Sách</a>
+        </div>
+        <a class="btn btn-danger" href="../../logout.php">Đăng xuất</a>
+    </div>
+</div>
 <div class="container mt-5">
     <h2 class="mb-4">Danh sách sách</h2>
     <form method="GET" action="showbook.php" class="mb-4">
         <div class="row mb-3 d-flex align-items-center">
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <input type="text" class="form-control" id="bookName" name="bookName" placeholder="Nhập tên sách..." value="<?php echo htmlspecialchars($bookName); ?>">
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <select class="form-select" id="author" name="author">
                     <option value="">Tất cả tác giả</option>
                     <?php
-                    $stmt = $conn->query("SELECT * FROM Authors");
+                    $stmt = $conn->prepare("SELECT * FROM Authors");
+                    $stmt->execute();
                     $authors = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     foreach ($authors as $author) {
                         echo "<option value='" . $author['AuthorID'] . "' " . ($author['AuthorID'] == $authorID ? 'selected' : '') . ">" . htmlspecialchars($author['Name']) . "</option>";
@@ -70,11 +105,12 @@ try {
                     ?>
                 </select>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <select class="form-select" id="category" name="category">
                     <option value="">Tất cả thể loại</option>
                     <?php
-                    $stmt = $conn->query("SELECT * FROM Categories");
+                    $stmt = $conn->prepare("SELECT * FROM Categories");
+                    $stmt->execute();
                     $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     foreach ($categories as $category) {
                         echo "<option value='" . $category['CategoryID'] . "' " . ($category['CategoryID'] == $categoryID ? 'selected' : '') . ">" . htmlspecialchars($category['CategoryName']) . "</option>";
@@ -82,11 +118,15 @@ try {
                     ?>
                 </select>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <button type="submit" class="btn btn-primary w-100">Tìm kiếm</button>
+            </div>
+            <div class="col-md-2">
+                <a href="add_book.php" class="btn btn-success w-100">Thêm Sách</a>
             </div>
         </div>
     </form>
+
     <table class="table table-bordered table-striped">
         <thead class="table-dark">
             <tr>
@@ -96,10 +136,11 @@ try {
                 <th>Giá</th>
                 <th>Ngày xuất bản</th>
                 <th>Mô tả</th>
+                <th>Hành động</th>
             </tr>
         </thead>
         <tbody>
-            <?php if (count($books) > 0): ?>
+          <?php if (count($books) > 0): ?>
                 <?php foreach ($books as $book): ?>
                     <tr>
                         <td><?php echo htmlspecialchars($book['Title']); ?></td>
@@ -108,15 +149,43 @@ try {
                         <td><?php echo number_format($book['Price'], 2); ?> VND</td>
                         <td><?php echo htmlspecialchars($book['PublishedDate']); ?></td>
                         <td><?php echo htmlspecialchars($book['Description']); ?></td>
+                        <td>
+                            <a href="edit_book.php?id=<?php echo $book['BookID']; ?>" class="btn btn-primary btn-sm">Sửa</a>
+                            <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal<?php echo $book['BookID']; ?>">
+                                    Xóa
+                                </button>
+
+                                <!-- Modal Xóa -->
+                                <div class="modal fade" id="deleteModal<?php echo  $book['BookID'];; ?>" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="deleteModalLabel">Xóa</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Bạn có chắc chắn muốn xóa sách <strong><?php echo htmlspecialchars($book['Title']); ?></strong>?
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                                                <a href="delete_book.php?id=<?php echo $book['BookID']; ?>" class="btn btn-danger">Xóa</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                        </td>
+
                     </tr>
                 <?php endforeach; ?>
             <?php else: ?>
                 <tr>
-                    <td colspan="6" class="text-center">Không tìm thấy sách nào.</td>
+                    <td colspan="7" class="text-center">Không tìm thấy sách nào.</td>
                 </tr>
             <?php endif; ?>
-        </tbody>
+        </tbody> 
+       
     </table>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

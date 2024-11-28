@@ -17,11 +17,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $stmt->bindParam(':email', $email);
         $stmt->execute();
 
+        // if ($stmt->rowCount() > 0) {
+        //     // Email đã tồn tại
+        //     header("Location: register_form.php?error=Email đã tồn tại!");
+        //     exit();
+        // } 
         if ($stmt->rowCount() > 0) {
-            // Email đã tồn tại
-            header("Location: register_form.php?error=Email đã tồn tại!");
-            exit();
-        } else {
+            
+         
+           header("Location: register_page.php?error=Email đã tồn tại");
+           exit();
+        }
+        
+        else {
             // Mã hóa mật khẩu
             $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
 

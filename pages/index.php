@@ -105,7 +105,12 @@ if (!isset($_SESSION['CustomerID'])) {
                                         data-book-price="<?= number_format($row['price'], 2, '.', ''); ?>">
                                     Thêm vào giỏ
                                 </button>
+                                <br/>
                             </form>
+                            <a href="readmore.php?id=<?php echo $row['BookID']; ?>" class="text-decoration-none text-dark hover-link">
+                            Xem chi tiết sách
+                                </a>
+                         
                         </div>
                     </div>
                 </div>

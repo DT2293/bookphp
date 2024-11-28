@@ -34,6 +34,25 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <title>Quản lý người dùng</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        .hover-link:hover {
+            color: #6a11cb;
+            text-decoration: underline;
+            transition: color 0.3s ease, text-decoration 0.3s ease;
+        }
+        .container-header {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .nav-item {
+            margin-right: 20px;
+        }
+        .btn-logout {
+            margin-left: 20px;
+        }
+    </style>
 </head>
 
 <body>
@@ -56,9 +75,9 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <!-- Các liên kết quản lý -->
         <div class="d-flex gap-4" >
             <a href="../admin.php" class="text-decoration-none text-dark hover-link">Home</a>
-            <a href="" class="text-decoration-none text-dark hover-link">Quản lý Thống kê</a>
+            <a href="../statistical/statistical.php" class="text-decoration-none text-dark hover-link">Quản lý Thống kê</a>
             <a href="" class="text-decoration-none text-dark hover-link">Quản lý người dùng</a>
-            <a href="#" class="text-decoration-none text-dark hover-link">Quản lý Sách</a>
+            <a href="../book/showbook.php" class="text-decoration-none text-dark hover-link">Quản lý Sách</a>
         </div>
 
         <!-- Nút đăng xuất -->

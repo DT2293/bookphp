@@ -43,32 +43,48 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <title>Thêm Người Dùng</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
+<style>
+        .hover-link:hover {
+            color: #6a11cb;
+            text-decoration: underline;
+            transition: color 0.3s ease, text-decoration 0.3s ease;
+        }
+        .container-header {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .nav-item {
+            margin-right: 20px;
+        }
+        .btn-logout {
+            margin-left: 20px;
+        }
+    </style>
 <body>
-<div class="bg-light py-2 px-3">
-  <div class="container py-2 bg-light rounded shadow-sm">
-    <div class="d-flex align-items-center justify-content-between">
-        <!-- Phần chào mừng -->
+<div class="container-header">
+    <div class="container d-flex justify-content-between align-items-center">
         <p class="mb-0">
             <strong>Xin chào, <?php echo htmlspecialchars($_SESSION['FullName'] ?? 'Admin'); ?></strong>
         </p>
-         
-        <style>
-            .hover-link:hover {
-                color: #6a11cb; /* Màu khi hover */
-                text-decoration: underline; /* Gạch chân khi hover */
-                transition: color 0.3s ease, text-decoration 0.3s ease; /* Hiệu ứng mượt */
-            }
-
-        </style>
-        <!-- Các liên kết quản lý -->
-        <div class="d-flex gap-3" >
-            <a href="" class="text-decoration-none text-dark hover-link">Quản lý Thống kê</a>
-            <a href="../dashboard/user/showuser.php" class="text-decoration-none text-dark hover-link">Quản lý người dùng</a>
-            <a href="../dashboard/book/showbook.php" class="text-decoration-none text-dark hover-link">Quản lý Sách</a>
-        </div>
-
-        <!-- Nút đăng xuất -->
-        <a class="btn btn-danger" href="../logout.php">Đăng xuất</a>
+        <nav>
+            <ul class="nav">
+                <li class="nav-item">
+                    <a href="" class="nav-link text-dark hover-link">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a href="../dashboard/statistical/statistical.php" class="nav-link text-dark hover-link">Quản lý Thống kê</a>
+                </li>
+                <li class="nav-item">
+                    <a href="../dashboard/user/showuser.php" class="nav-link text-dark hover-link">Quản lý người dùng</a>
+                </li>
+                <li class="nav-item">
+                    <a href="../dashboard/book/showbook.php" class="nav-link text-dark hover-link">Quản lý Sách</a>
+                </li>
+            </ul>
+        </nav>
+        <a href="../logout.php" class="btn btn-danger btn-sm btn-logout">Đăng xuất</a>
     </div>
 </div>
      
