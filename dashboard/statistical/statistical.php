@@ -8,11 +8,17 @@ if (!isset($_SESSION['CustomerID']) || $_SESSION['role'] !== 'Admin') {
     exit;
 }
 
+// Xử lý dữ liệu từ form
+$startDate = $_POST['startDate'] ?? '2024-01-01'; // Giá trị mặc định
+$endDate = $_POST['endDate'] ?? '2024-12-30'; // Giá trị mặc định
+
+$data = [];
+$labels = [];
+$revenues = [];
+
 try {
     // Gọi thủ tục GetRevenueStatistics
     $stmt = $conn->prepare("CALL GetRevenueStatistics(:startDate, :endDate)");
-    $startDate = '2024-01-01';
-    $endDate = '2024-11-30';
     $stmt->bindParam(':startDate', $startDate, PDO::PARAM_STR);
     $stmt->bindParam(':endDate', $endDate, PDO::PARAM_STR);
     $stmt->execute();
@@ -21,8 +27,6 @@ try {
     $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     // Chuẩn bị dữ liệu cho Chart.js
-    $labels = [];
-    $revenues = [];
     foreach ($data as $row) {
         $labels[] = $row['OrderDate']; // Ngày
         $revenues[] = $row['TotalRevenue']; // Doanh thu
@@ -88,6 +92,21 @@ try {
 
 <div class="container mt-5">
     <h2 class="text-center mb-4">Biểu đồ doanh thu</h2>
+    <form method="POST" class="mb-4">
+        <div class="row">
+            <div class="col-md-4">
+                <label for="startDate" class="form-label">Ngày bắt đầu</label>
+                <input type="date" id="startDate" name="startDate" class="form-control" value="<?php echo htmlspecialchars($startDate); ?>" required>
+            </div>
+            <div class="col-md-4">
+                <label for="endDate" class="form-label">Ngày kết thúc</label>
+                <input type="date" id="endDate" name="endDate" class="form-control" value="<?php echo htmlspecialchars($endDate); ?>" required>
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">Xem thống kê</button>
+            </div>
+        </div>
+    </form>
     <div class="row justify-content-center">
         <div class="col-md-8">
             <canvas id="revenueChart"></canvas>

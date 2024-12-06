@@ -51,11 +51,19 @@ if ($userLoggedIn) {
                     <li class="nav-item">
                         <a href="../pages/index.php" class="nav-link text-white">Home</a>
                     </li>
-                    <li class="nav-item">
+                    <!-- Giả sử bạn có một phần tử này trong header để hiển thị số lượng giỏ hàng -->
+
+                    <!-- <li class="nav-item">
                         <a href="../pages/cart.php" class="nav-link text-white">
                             Cart <span class="badge bg-light text-primary"><?= count($_SESSION['cart']) ?></span>
                         </a>
+                    </li> -->
+                    <li class="nav-item">
+                        <a href="../pages/cart.php" class="nav-link text-white">
+                            Cart <span class="badge bg-light text-primary" id="cart-count"><?= count($_SESSION['cart']) ?></span>
+                        </a>
                     </li>
+
                      <li class="nav-item">
                         <a class="btn btn-primary" href="../logout.php">Đăng xuất</a>
                     </li>

@@ -25,10 +25,17 @@ if (isset($_POST['book_id']) && isset($_POST['book_title']) && isset($_POST['boo
         ];
     }
 
-    // Trả về phản hồi JSON với success
-    echo json_encode(['success' => true]);
+    // Tính tổng số lượng sản phẩm trong giỏ hàng
+    $totalItems = array_sum(array_column($_SESSION['cart'], 'quantity'));
+
+    // Trả về phản hồi JSON với success và số lượng giỏ hàng
+    echo json_encode([
+        'success' => true,
+        'totalItems' => $totalItems
+    ]);
 } else {
     // Trả về lỗi nếu thiếu dữ liệu
     echo json_encode(['success' => false]);
 }
 ?>
+

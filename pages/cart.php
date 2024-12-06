@@ -18,6 +18,7 @@ include '../includes/db.php';
                         <th>Số lượng</th>
                         <th>Giá</th>
                         <th>Tổng</th>
+                        <th>Chức năng</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -51,6 +52,9 @@ include '../includes/db.php';
                         </td>
                         <td><?= number_format($price, 0, ',', '.') ?> VNĐ</td>
                         <td class="subtotal"><?= number_format($subtotal, 0, ',', '.') ?> VNĐ</td>
+                        <td>
+                            <button type="button" class="btn btn-danger btn-sm remove" data-book-id="<?= $bookId ?>">Xóa</button>
+                        </td>
                     </tr>
                     <?php
                 }
@@ -70,7 +74,7 @@ include '../includes/db.php';
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
 $(document).ready(function() {
-    // Xử lý sự kiện tăng giảm số lượng
+    // Xử lý sự kiện tăng/giảm số lượng
     $('.increase, .decrease').on('click', function() {
         var action = $(this).data('action');
         var bookId = $(this).data('book-id');
@@ -96,18 +100,17 @@ $(document).ready(function() {
                 quantity: quantity
             },
             success: function(response) {
-                // Giả sử response là một JSON với các thông tin tổng tiền mới và subtotal
-                var jsonResponse = JSON.parse(response);
+                try {
+                    var jsonResponse = JSON.parse(response);
 
-                // Cập nhật lại tổng tiền cho từng mục trong giỏ hàng
-                $('tr[data-book-id="' + bookId + '"]').each(function() {
-                    var subtotalElement = $(this).find('.subtotal');
-                    var subtotal = jsonResponse.subtotals[bookId]; // Giả sử response trả về subtotal cho từng sách
-                    subtotalElement.text(subtotal);
-                });
+                    // Cập nhật subtotal của sách
+                    $('tr[data-book-id="' + bookId + '"]').find('.subtotal').text(jsonResponse.subtotals[bookId]);
 
-                // Cập nhật lại tổng cộng
-                $('#total').text(jsonResponse.total);
+                    // Cập nhật tổng tiền
+                    $('#total').text(jsonResponse.total);
+                } catch (e) {
+                    alert('Lỗi xử lý dữ liệu. Vui lòng thử lại!');
+                }
             },
             error: function() {
                 alert('Đã có lỗi xảy ra. Vui lòng thử lại!');
@@ -116,7 +119,41 @@ $(document).ready(function() {
     });
 });
 
-</script>
+$(document).ready(function() {
+    // Xử lý sự kiện xóa sản phẩm khỏi giỏ hàng
+    $('.remove').on('click', function() {
+        var bookId = $(this).data('book-id');
 
+        // Gửi yêu cầu AJAX để xóa sản phẩm
+        $.ajax({
+            url: 'clear_product_cart.php', // Tạo file remove.php để xử lý
+            method: 'POST',
+            data: { bookId: bookId },
+            success: function(response) {
+                try {
+                    var jsonResponse = JSON.parse(response);
+
+                    // Xóa dòng sản phẩm khỏi bảng
+                    $('tr[data-book-id="' + bookId + '"]').remove();
+
+                    // Cập nhật tổng tiền
+                    $('#total').text(jsonResponse.total);
+
+                    // Hiển thị thông báo nếu giỏ hàng trống
+                    if (jsonResponse.empty) {
+                        $('table').remove();
+                        $('main').append('<p>Giỏ hàng của bạn đang trống.</p>');
+                    }
+                } catch (e) {
+                    alert('Lỗi xử lý dữ liệu. Vui lòng thử lại!');
+                }
+            },
+            error: function() {
+                alert('Đã có lỗi xảy ra. Vui lòng thử lại!');
+            }
+        });
+    });
+});
+</script>
 </body>
 </html>

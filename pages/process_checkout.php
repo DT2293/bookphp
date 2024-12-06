@@ -15,7 +15,7 @@ $address = $_POST['address'];
 
 // Kiểm tra xem người dùng có đăng nhập không
 if (!isset($_SESSION['CustomerID'])) {
-    echo "<script>alert('Bạn cần đăng nhập trước khi thanh toán.'); window.location.href = '../pages/login.php';</script>";
+    echo "<script>alert('Bạn cần đăng nhập trước khi thanh toán.'); window.location.href = '../auth/login_page.php';</script>";
     exit;
 }
 
