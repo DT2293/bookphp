@@ -16,7 +16,7 @@ if (isset($_GET['search']) && !empty($_GET['search'])) {
     $stmt->execute(["%$searchQuery%", "%$searchQuery%"]);
 } else {
     // Nếu không tìm kiếm, hiển thị tất cả người dùng
-    $stmt = $conn->prepare("SELECT * FROM customers WHERE Role = 'Admin'");
+    $stmt = $conn->prepare("SELECT * FROM customers WHERE Role = 'Customer'");
 
     $stmt->execute();
 }
@@ -104,10 +104,11 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     <!-- Cột 3: Nút điều hướng -->
     <div class="col-md-4 text-end d-flex justify-content-end gap-3">
-        <a href="showuser_cus.php" class="btn btn-outline-primary">Khách hàng</a>
+        <a href="showuser.php" class="btn btn-outline-primary">Admin</a>
         <a href="add_user.php" class="btn btn-success">Thêm người dùng</a>
     </div>
 </div>
+
 
         <!-- Bảng danh sách người dùng -->
         <table class="table table-bordered table-striped">

@@ -82,6 +82,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <li class="nav-item">
                     <a href="../dashboard/book/showbook.php" class="nav-link text-dark hover-link">Quản lý Sách</a>
                 </li>
+                <li class="nav-item">
+                    <a href="../dashboard/stock/stock.php" class="nav-link text-dark hover-link">Quản lý kho hàng</a>
+                </li>
             </ul>
         </nav>
         <a href="../logout.php" class="btn btn-danger btn-sm btn-logout">Đăng xuất</a>

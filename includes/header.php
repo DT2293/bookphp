@@ -51,6 +51,9 @@ if ($userLoggedIn) {
                     <li class="nav-item">
                         <a href="../pages/index.php" class="nav-link text-white">Home</a>
                     </li>
+                    <li class="nav-item">
+                        <a href="../pages/updateinfo.php" class="nav-link text-white">Update User Info</a>
+                    </li>
                     <!-- Giả sử bạn có một phần tử này trong header để hiển thị số lượng giỏ hàng -->
 
                     <!-- <li class="nav-item">

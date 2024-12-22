@@ -100,18 +100,24 @@ $(document).ready(function() {
                 quantity: quantity
             },
             success: function(response) {
-                try {
-                    var jsonResponse = JSON.parse(response);
+    try {
+        var jsonResponse = JSON.parse(response);
 
-                    // Cập nhật subtotal của sách
-                    $('tr[data-book-id="' + bookId + '"]').find('.subtotal').text(jsonResponse.subtotals[bookId]);
+        if (!jsonResponse.success) {
+            alert(jsonResponse.message);
+            return;
+        }
 
-                    // Cập nhật tổng tiền
-                    $('#total').text(jsonResponse.total);
-                } catch (e) {
-                    alert('Lỗi xử lý dữ liệu. Vui lòng thử lại!');
-                }
-            },
+        // Cập nhật subtotal của sách
+        $('tr[data-book-id="' + bookId + '"]').find('.subtotal').text(jsonResponse.subtotals[bookId]);
+
+        // Cập nhật tổng tiền
+        $('#total').text(jsonResponse.total);
+    } catch (e) {
+        alert('Lỗi xử lý dữ liệu. Vui lòng thử lại!');
+    }
+},
+
             error: function() {
                 alert('Đã có lỗi xảy ra. Vui lòng thử lại!');
             }
@@ -154,6 +160,7 @@ $(document).ready(function() {
         });
     });
 });
+
 </script>
 </body>
 </html>

@@ -40,7 +40,7 @@ function login($email, $password, $conn) {
     } else {
         return "Email hoặc mật khẩu không đúng.";
     }
-}
+}   
 
 // Xử lý khi người dùng gửi biểu mẫu
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

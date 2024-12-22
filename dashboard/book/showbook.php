@@ -11,11 +11,13 @@ $bookName = isset($_GET['bookName']) ? trim($_GET['bookName']) : '';
 $authorID = isset($_GET['author']) ? $_GET['author'] : '';
 $categoryID = isset($_GET['category']) ? $_GET['category'] : '';
 
-$sql = "SELECT b.*, a.Name AS AuthorName, c.CategoryName 
+$sql = "SELECT b.BookID, b.Title, SUM(s.Quantity) AS TotalStock, a.Name AS AuthorName, c.CategoryName, b.ImportPrice, b.Price, b.PublishedDate, b.Description
         FROM Books b
         LEFT JOIN Authors a ON b.AuthorID = a.AuthorID
         LEFT JOIN Categories c ON b.CategoryID = c.CategoryID
+        LEFT JOIN Stock s ON b.BookID = s.BookID
         WHERE 1";
+
 $params = [];
 
 if ($bookName !== '') {
@@ -32,6 +34,8 @@ if ($categoryID !== '') {
     $sql .= " AND b.CategoryID = ?";
     $params[] = $categoryID;
 }
+
+$sql .= " GROUP BY b.BookID"; // Đảm bảo nhóm theo BookID để tính tổng tồn kho cho từng cuốn sách
 
 try {
     $stmt = $conn->prepare($sql);
@@ -124,65 +128,72 @@ try {
             <div class="col-md-2">
                 <a href="add_book.php" class="btn btn-success w-100">Thêm Sách</a>
             </div>
+            <div class="col-md-2">
+                <a href="../stock/order_supplier.php" class="btn btn-primary w-100">Đặt hàng</a>
+            </div>
         </div>
     </form>
 
     <table class="table table-bordered table-striped">
-        <thead class="table-dark">
+    <thead class="table-dark">
+    <tr>
+        <th>Tiêu đề</th>
+        <th>Tác giả</th>
+        <th>Danh mục</th>
+        <th>Giá nhập</th>
+        <th>Giá bán</th>
+        <th>Ngày xuất bản</th>
+        <th>Số lượng trong kho</th>
+        <th>Mô tả</th>
+        <th>Hành động</th>
+    </tr>
+</thead>
+
+    <tbody>
+    <?php if (count($books) > 0): ?>
+        <?php foreach ($books as $book): ?>
             <tr>
-                <th>Tiêu đề</th>
-                <th>Tác giả</th>
-                <th>Danh mục</th>
-                <th>Giá</th>
-                <th>Ngày xuất bản</th>
-                <th>Mô tả</th>
-                <th>Hành động</th>
-            </tr>
-        </thead>
-        <tbody>
-          <?php if (count($books) > 0): ?>
-                <?php foreach ($books as $book): ?>
-                    <tr>
-                        <td><?php echo htmlspecialchars($book['Title']); ?></td>
-                        <td><?php echo htmlspecialchars($book['AuthorName']); ?></td>
-                        <td><?php echo htmlspecialchars($book['CategoryName']); ?></td>
-                        <td><?php echo number_format($book['Price'], 2); ?> VND</td>
-                        <td><?php echo htmlspecialchars($book['PublishedDate']); ?></td>
-                        <td><?php echo htmlspecialchars($book['Description']); ?></td>
-                        <td>
-                            <a href="edit_book.php?id=<?php echo $book['BookID']; ?>" class="btn btn-primary btn-sm">Sửa</a>
-                            <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal<?php echo $book['BookID']; ?>">
-                                    Xóa
-                                </button>
+                <td><?php echo htmlspecialchars($book['Title']); ?></td>
+                <td><?php echo htmlspecialchars($book['AuthorName']); ?></td>
+                <td><?php echo htmlspecialchars($book['CategoryName']); ?></td>
+                <td><?php echo number_format($book['ImportPrice'], 2); ?> VND</td>
+                <td><?php echo number_format($book['Price'], 2); ?> VND</td>
+                <td><?php echo htmlspecialchars($book['PublishedDate']); ?></td>
+                <td><?php echo htmlspecialchars($book['TotalStock'] ?? 0); ?></td>
+                <td><?php echo htmlspecialchars($book['Description']); ?></td>
+                <td>
+                    <a href="edit_book.php?id=<?php echo $book['BookID']; ?>" class="btn btn-primary btn-sm">Sửa</a>
+                    <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal<?php echo $book['BookID']; ?>">Xóa</button>
 
-                                <!-- Modal Xóa -->
-                                <div class="modal fade" id="deleteModal<?php echo  $book['BookID'];; ?>" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title" id="deleteModalLabel">Xóa</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                Bạn có chắc chắn muốn xóa sách <strong><?php echo htmlspecialchars($book['Title']); ?></strong>?
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                                                <a href="delete_book.php?id=<?php echo $book['BookID']; ?>" class="btn btn-danger">Xóa</a>
-                                            </div>
-                                        </div>
-                                    </div>
+                    <!-- Modal Xóa -->
+                    <div class="modal fade" id="deleteModal<?php echo $book['BookID']; ?>" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="deleteModalLabel">Xóa</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
-                        </td>
+                                <div class="modal-body">
+                                    Bạn có chắc chắn muốn xóa sách <strong><?php echo htmlspecialchars($book['Title']); ?></strong>?
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                                    <a href="delete_book.php?id=<?php echo $book['BookID']; ?>" class="btn btn-danger">Xóa</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="ShowComment.php?id=<?php echo $book['BookID']; ?>" class="btn btn-primary btn-sm">Bình luận</a>
+                </td>
+            </tr>
+        <?php endforeach; ?>
+    <?php else: ?>
+        <tr>
+            <td colspan="8" class="text-center">Không tìm thấy sách nào.</td>
+        </tr>
+    <?php endif; ?>
+</tbody>
 
-                    </tr>
-                <?php endforeach; ?>
-            <?php else: ?>
-                <tr>
-                    <td colspan="7" class="text-center">Không tìm thấy sách nào.</td>
-                </tr>
-            <?php endif; ?>
-        </tbody> 
        
     </table>
 </div>

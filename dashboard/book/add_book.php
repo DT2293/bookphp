@@ -113,6 +113,7 @@ $stmt->execute([$title, $author_id, $category_id, $price, $published_date, $desc
             <a href="../statistical/statistical.php" class="text-decoration-none text-dark hover-link">Quản lý Thống kê</a>
             <a href="../../dashboard/user/showuser.php" class="text-decoration-none text-dark hover-link">Quản lý người dùng</a>
             <a href="../../dashboard/book/showbook.php" class="text-decoration-none text-dark hover-link">Quản lý Sách</a>
+             
         </div>
         <a class="btn btn-danger" href="../../logout.php">Đăng xuất</a>
     </div>

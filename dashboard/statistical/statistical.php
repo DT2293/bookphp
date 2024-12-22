@@ -17,6 +17,21 @@ $labels = [];
 $revenues = [];
 
 try {
+
+     // Tính tổng số tiền đã mua sách
+     $stmt = $conn->prepare("SELECT SUM(Quantity * PricePerUnit) AS TotalImport FROM stock_transactions WHERE TransactionType = 'Import'");
+     $stmt->execute();
+     $totalImportCost = $stmt->fetchColumn() ?? 0;
+ 
+     // Tính tổng doanh thu bán sách
+     $stmt = $conn->prepare("SELECT SUM(TotalAmount) AS TotalRevenue FROM orders WHERE OrderDate BETWEEN :startDate AND :endDate");
+     $stmt->bindParam(':startDate', $startDate, PDO::PARAM_STR);
+     $stmt->bindParam(':endDate', $endDate, PDO::PARAM_STR);
+     $stmt->execute();
+     $totalRevenue = $stmt->fetchColumn() ?? 0;
+     
+      // Tính lợi nhuận
+    $profit = $totalRevenue - $totalImportCost;
     // Gọi thủ tục GetRevenueStatistics
     $stmt = $conn->prepare("CALL GetRevenueStatistics(:startDate, :endDate)");
     $stmt->bindParam(':startDate', $startDate, PDO::PARAM_STR);
@@ -89,6 +104,46 @@ try {
         <a href="../../logout.php" class="btn btn-danger btn-sm btn-logout">Đăng xuất</a>
     </div>
 </div>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <!-- Thẻ 1: Tổng số tiền đã mua sách -->
+        <div class="col-md-4">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-header">Tổng số tiền đã mua sách</div>
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <?php echo number_format($totalImportCost, 0, ',', '.') . " VND"; ?>
+                    </h5>
+                </div>
+            </div>
+        </div>
+
+        <!-- Thẻ 2: Tổng doanh thu bán sách -->
+        <div class="col-md-4">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-header">Tổng doanh thu bán sách</div>
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <?php echo number_format($totalRevenue, 0, ',', '.') . " VND"; ?>
+                    </h5>
+                </div>
+            </div>
+        </div>
+
+        <!-- Thẻ 3: Số tiền lời -->
+        <div class="col-md-4">
+            <div class="card text-white bg-warning mb-3">
+                <div class="card-header">Số tiền lời</div>
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <?php echo number_format($profit, 0, ',', '.') . " VND"; ?>
+                    </h5>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <div class="container mt-5">
     <h2 class="text-center mb-4">Biểu đồ doanh thu</h2>
@@ -166,7 +221,6 @@ try {
         }
     });
 </script>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

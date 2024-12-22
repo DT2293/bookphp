@@ -1,66 +1,123 @@
-CREATE TABLE `authors`
- (
-  `AuthorID` int(11) NOT NULL,
+-- Tạo bảng authors với AUTO_INCREMENT
+CREATE TABLE `authors` (
+  `AuthorID` int(11) NOT NULL AUTO_INCREMENT,
   `Name` varchar(255) NOT NULL,
   `Bio` text DEFAULT NULL,
-  `DateOfBirth` date DEFAULT NULL
-) 
-CREATE TABLE `bookpublishers`
-(
-  `BookID` int(11) NOT NULL,
-  `PublisherID` int(11) NOT NULL
-) 
-CREATE TABLE `books` 
-(
-  `BookID` int(11) NOT NULL,
+  `DateOfBirth` date DEFAULT NULL,
+  PRIMARY KEY (`AuthorID`)
+);
+
+
+-- Tạo bảng books với AUTO_INCREMENT
+CREATE TABLE `books` (
+  `BookID` int(11) NOT NULL AUTO_INCREMENT,
   `Title` varchar(255) NOT NULL,
   `AuthorID` int(11) DEFAULT NULL,
   `CategoryID` int(11) DEFAULT NULL,
-  `Price` decimal(10,2) NOT NULL,
+  `ImportPrice` DECIMAL(10,2) 
+  `Price` DECIMAL(10,2) `
   `PublishedDate` date DEFAULT NULL,
   `Description` text DEFAULT NULL,
-  `CoverImageUrl` varchar(255) DEFAULT NULL
-) 
-CREATE TABLE `categories` 
-(
-  `CategoryID` int(11) NOT NULL,
-  `CategoryName` varchar(255) NOT NULL
-)
+  `CoverImageUrl` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`BookID`),
+  CONSTRAINT `fk_books_authors` FOREIGN KEY (`AuthorID`) REFERENCES `authors`(`AuthorID`) ON DELETE SET NULL,
+  CONSTRAINT `fk_books_categories` FOREIGN KEY (`CategoryID`) REFERENCES `categories`(`CategoryID`) ON DELETE SET NULL
+);
+
+-- Tạo bảng ca  tegories với AUTO_INCREMENT
+CREATE TABLE `categories` (
+  `CategoryID` int(11) NOT NULL AUTO_INCREMENT,
+  `CategoryName` varchar(255) NOT NULL,
+  PRIMARY KEY (`CategoryID`)
+);
+
+-- Tạo bảng customers với AUTO_INCREMENT
 CREATE TABLE `customers` (
-  `CustomerID` int(11) NOT NULL,
+  `CustomerID` int(11) NOT NULL AUTO_INCREMENT,
   `FullName` varchar(255) NOT NULL,
   `Email` varchar(255) NOT NULL,
   `Password` varchar(255) NOT NULL,
   `Phone` varchar(20) DEFAULT NULL,
   `Address` text DEFAULT NULL,
-  `Role` enum('Admin','Customer') DEFAULT 'Customer'
-) 
+  `Role` enum('Admin','Customer') DEFAULT 'Customer',
+  PRIMARY KEY (`CustomerID`)
+);
+
+-- Tạo bảng orderitems với AUTO_INCREMENT
 CREATE TABLE `orderitems` (
-  `OrderItemID` int(11) NOT NULL,
+  `OrderItemID` int(11) NOT NULL AUTO_INCREMENT,
   `OrderID` int(11) DEFAULT NULL,
   `BookID` int(11) DEFAULT NULL,
   `Quantity` int(11) NOT NULL,
-  `UnitPrice` decimal(10,2) NOT NULL
-) 
+  `UnitPrice` decimal(10,2) NOT NULL,
+  PRIMARY KEY (`OrderItemID`),
+  CONSTRAINT `fk_orderitems_orders` FOREIGN KEY (`OrderID`) REFERENCES `orders`(`OrderID`) ON DELETE CASCADE,
+  CONSTRAINT `fk_orderitems_books` FOREIGN KEY (`BookID`) REFERENCES `books`(`BookID`) ON DELETE CASCADE
+);
+
+-- Tạo bảng orders với AUTO_INCREMENT
 CREATE TABLE `orders` (
-  `OrderID` int(11) NOT NULL,
+  `OrderID` int(11) NOT NULL AUTO_INCREMENT,
   `CustomerID` int(11) DEFAULT NULL,
   `OrderDate` datetime DEFAULT current_timestamp(),
   `TotalAmount` decimal(10,2) NOT NULL,
-  `Status` enum('Pending','Shipped','Delivered','Cancelled') DEFAULT 'Pending'
-) 
+  `Status` enum('Pending','Shipped','Delivered','Cancelled') DEFAULT 'Pending',
+  PRIMARY KEY (`OrderID`),
+  CONSTRAINT `fk_orders_customers` FOREIGN KEY (`CustomerID`) REFERENCES `customers`(`CustomerID`) ON DELETE SET NULL
+);
+- Tạo bảng reviews với AUTO_INCREMENT
+  CREATE TABLE `reviews` (
+    `ReviewID` int(11) NOT NULL AUTO_INCREMENT,
+    `BookID` int(11) DEFAULT NULL,
+    `CustomerID` int(11) DEFAULT NULL,
+    `Rating` int(11) DEFAULT NULL CHECK (`Rating` BETWEEN 1 AND 5),
+    `Comment` text DEFAULT NULL,
+    `ReviewDate` datetime DEFAULT current_timestamp(),
+    PRIMARY KEY (`ReviewID`),
+    CONSTRAINT `fk_reviews_books` FOREIGN KEY (`BookID`) REFERENCES `books`(`BookID`) ON DELETE CASCADE,
+    CONSTRAINT `fk_reviews_customers` FOREIGN KEY (`CustomerID`) REFERENCES `customers`(`CustomerID`) ON DELETE CASCADE
+  );
 
+CREATE TABLE `stock_transactions` (
+  `TransactionID` int(11) NOT NULL AUTO_INCREMENT, -- ID tự tăng cho giao dịch
+  `BookID` int(11) NOT NULL,                      -- Liên kết với sách
+  `TransactionType` enum('Import', 'Export') NOT NULL, -- Loại giao dịch: Nhập hoặc Xuất
+  `Quantity` int(11) NOT NULL,                    -- Số lượng thay đổi
+  `TransactionDate` datetime DEFAULT current_timestamp(), -- Thời gian thực hiện giao dịch
+  `SupplierID` int(11) DEFAULT NULL,              -- Liên kết với nhà cung cấp (nếu nhập kho)
+  `Remarks` text DEFAULT NULL,                    -- Ghi chú về giao dịch
+  `PricePerUnit` DECIMAL(10,2) DEFAULT NULL AFTER `Quantity`
+  PRIMARY KEY (`TransactionID`),
+  CONSTRAINT `fk_stock_transactions_books` FOREIGN KEY (`BookID`) REFERENCES `books`(`BookID`) ON DELETE CASCADE,
+  CONSTRAINT `fk_stock_transactions_suppliers` FOREIGN KEY (`SupplierID`) REFERENCES `suppliers`(`SupplierID`) ON DELETE SET NULL
+);
+CREATE TABLE `suppliers` (
+  `SupplierID` int(11) NOT NULL AUTO_INCREMENT,
+  `Name` varchar(255) NOT NULL,
+  `ContactInfo` varchar(255) DEFAULT NULL,
+  `Address` text DEFAULT NULL,
+  `Email` varchar(255) DEFAULT NULL,
+  `Phone` varchar(20) DEFAULT NULL,
+  PRIMARY KEY (`SupplierID`)
+);
+CREATE TABLE `stock` (
+  `StockID` int(11) NOT NULL AUTO_INCREMENT,
+  `BookID` int(11) NOT NULL,
+  `Quantity` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`StockID`),
+  CONSTRAINT `fk_stock_books` FOREIGN KEY (`BookID`) REFERENCES `books`(`BookID`) ON DELETE CASCADE
+);
+-- Tạo bảng publishers với AUTO_INCREMENT
 CREATE TABLE `publishers` (
-  `PublisherID` int(11) NOT NULL,
+  `PublisherID` int(11) NOT NULL AUTO_INCREMENT,
   `Name` varchar(255) NOT NULL,
   `Address` text DEFAULT NULL,
-  `ContactInfo` varchar(100) DEFAULT NULL
-)
-CREATE TABLE `reviews` (
-  `ReviewID` int(11) NOT NULL,
-  `BookID` int(11) DEFAULT NULL,
-  `CustomerID` int(11) DEFAULT NULL,
-  `Rating` int(11) DEFAULT NULL CHECK (`Rating` between 1 and 5),
-  `Comment` text DEFAULT NULL,
-  `ReviewDate` datetime DEFAULT current_timestamp()
-)
+  `ContactInfo` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`PublisherID`)
+);
+-- Tạo bảng bookpublishers
+CREATE TABLE `bookpublishers` (
+  `BookID` int(11) NOT NULL AUTO_INCREMENT,
+  `PublisherID` int(11) NOT NULL,
+  PRIMARY KEY (`BookID`, `PublisherID`)
+);
