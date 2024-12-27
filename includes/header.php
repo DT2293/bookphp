@@ -52,7 +52,10 @@ if ($userLoggedIn) {
                         <a href="../pages/index.php" class="nav-link text-white">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a href="../pages/updateinfo.php" class="nav-link text-white">Update User Info</a>
+                        <a href="../pages/updateinfo.php" class="nav-link text-white">Thôn tin cá nhân</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../pages/order_ship.php" class="nav-link text-white">Đơn hàng</a>
                     </li>
                     <!-- Giả sử bạn có một phần tử này trong header để hiển thị số lượng giỏ hàng -->
 

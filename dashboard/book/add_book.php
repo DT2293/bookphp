@@ -10,6 +10,7 @@ if (!isset($_SESSION['CustomerID']) || $_SESSION['role'] !== 'Admin') {
 
 $authors = [];
 $categories = [];
+$suppliers = [];
 
 // Lấy danh sách tác giả
 $authorResult = $conn->query("SELECT AuthorID, Name FROM Authors");
@@ -31,16 +32,27 @@ if ($categoryResult && $categoryResult->rowCount() > 0) {
     echo "<p>Lỗi: Không thể lấy danh sách danh mục. Vui lòng kiểm tra cơ sở dữ liệu.</p>";
 }
 
+// Lấy danh sách nhà cung cấp
+$suppliersResult = $conn->query("SELECT SupplierID, Name FROM suppliers");
+if ($suppliersResult && $suppliersResult->rowCount() > 0) {
+    while ($row = $suppliersResult->fetch(PDO::FETCH_ASSOC)) {
+        $suppliers[] = $row;
+    }
+} else {
+    echo "<p>Lỗi: Không thể lấy danh sách nhà cung cấp. Vui lòng kiểm tra cơ sở dữ liệu.</p>";
+}
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Lấy dữ liệu từ form
     $title = trim($_POST['title']);
     $author_id = $_POST['author_id'];
     $category_id = $_POST['category_id'];
     $price = $_POST['price'];
-   
+    $importPrice = $_POST['importPrice'];
     $published_date = $_POST['published_date'];
     $description = trim($_POST['description']);
     $cover_image_url = null;
+    $supplier_id = $_POST['SupplierID'];
 
     // Xử lý upload ảnh bìa
     if (!empty($_FILES['cover_image']['name'])) {
@@ -64,14 +76,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $error = "Sách này đã tồn tại trong cơ sở dữ liệu.";
     } else {
         // Thêm sách vào cơ sở dữ liệu
-        $stmt = $conn->prepare("INSERT INTO Books (Title, AuthorID, CategoryID, Price, PublishedDate, Description, CoverImageUrl) 
-                        VALUES (?, ?, ?, ?, ?, ?, ?)");
-$stmt->execute([$title, $author_id, $category_id, $price, $published_date, $description, $cover_image_url]);
+        $stmt = $conn->prepare("INSERT INTO Books (Title, AuthorID, CategoryID, Price,ImportPrice ,PublishedDate, Description, CoverImageUrl, SupplierID) 
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?,?)");
+        $stmt->execute([$title, $author_id, $category_id, $price,$importPrice ,$published_date, $description, $cover_image_url, $supplier_id]);
 
         $success = "Sách đã được thêm thành công!";
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -113,6 +126,7 @@ $stmt->execute([$title, $author_id, $category_id, $price, $published_date, $desc
             <a href="../statistical/statistical.php" class="text-decoration-none text-dark hover-link">Quản lý Thống kê</a>
             <a href="../../dashboard/user/showuser.php" class="text-decoration-none text-dark hover-link">Quản lý người dùng</a>
             <a href="../../dashboard/book/showbook.php" class="text-decoration-none text-dark hover-link">Quản lý Sách</a>
+            <a href="../orders/showorders.php" class="text-decoration-none text-dark hover-link">Quản lý hóa đơn</a>
              
         </div>
         <a class="btn btn-danger" href="../../logout.php">Đăng xuất</a>
@@ -153,7 +167,10 @@ $stmt->execute([$title, $author_id, $category_id, $price, $published_date, $desc
                     <?php endforeach; ?>
                 </select>
             </div>
-
+            <div class="mb-3">
+                <label for="importPrice" class="form-label">Giá nhập vào:</label>
+                <input type="number" id="importPrice" name="importPrice" class="form-control" step="0.01" required>
+            </div>
             <div class="mb-3">
                 <label for="price" class="form-label">Giá:</label>
                 <input type="number" id="price" name="price" class="form-control" step="0.01" required>
@@ -172,6 +189,15 @@ $stmt->execute([$title, $author_id, $category_id, $price, $published_date, $desc
                 <label for="cover_image" class="form-label">Ảnh bìa:</label>
                 <input type="file" id="cover_image" name="cover_image" class="form-control" accept="image/*">
             </div>
+            <div class="mb-3">
+            <label for="SupplierID" class="form-label">Nhà Cung Cấp:</label>
+            <select id="SupplierID" name="SupplierID" class="form-select" required>
+                <option value="">-- Chọn nhà cung cấp --</option>
+                <?php foreach ($suppliers as $supplier): ?>
+                    <option value="<?= $supplier['SupplierID'] ?>"><?= htmlspecialchars($supplier['Name']) ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
 
             <button type="submit" class="btn btn-primary">Thêm Sách</button>
             <a href="../book/showbook.php" class="btn btn-danger">Huỷ</a>

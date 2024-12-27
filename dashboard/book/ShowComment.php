@@ -114,6 +114,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['replyContent'], $_POS
             <a href="../statistical/statistical.php" class="text-decoration-none text-dark hover-link">Quản lý Thống kê</a>
             <a href="" class="text-decoration-none text-dark hover-link">Quản lý người dùng</a>
             <a href="../book/showbook.php" class="text-decoration-none text-dark hover-link">Quản lý Sách</a>
+            <a href="../orders/showorders.php" class="text-decoration-none text-dark hover-link">Quản lý hóa đơn</a>
+            <a href="../stock/stock.php" class="text-decoration-none text-dark hover-link">Quản lý kho hàng</a>
         </div>
 
         <!-- Nút đăng xuất -->

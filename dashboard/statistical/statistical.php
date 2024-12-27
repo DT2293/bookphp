@@ -30,8 +30,19 @@ try {
      $stmt->execute();
      $totalRevenue = $stmt->fetchColumn() ?? 0;
      
-      // Tính lợi nhuận
-    $profit = $totalRevenue - $totalImportCost;
+     $stmt = $conn->prepare("SELECT 
+                                SUM(oi.Quantity * (oi.UnitPrice - b.ImportPrice)) AS TotalProfit
+                            FROM 
+                                orders o
+                            JOIN 
+                                orderitems oi ON o.OrderID = oi.OrderID
+                            JOIN 
+                                books b ON oi.BookID = b.BookID
+                           ");  // Chỉ tính các đơn hàng đã giao
+    $stmt->execute();
+
+    // Lấy kết quả tổng lợi nhuận
+    $profit = $stmt->fetchColumn() ?? 0;
     // Gọi thủ tục GetRevenueStatistics
     $stmt = $conn->prepare("CALL GetRevenueStatistics(:startDate, :endDate)");
     $stmt->bindParam(':startDate', $startDate, PDO::PARAM_STR);
@@ -98,6 +109,9 @@ try {
                 </li>
                 <li class="nav-item">
                     <a href="../book/showbook.php" class="nav-link text-dark hover-link">Quản lý Sách</a>
+                </li>
+                <li class="nav-item">
+                    <a href="../orders/showorders.php" class="nav-link text-dark hover-link">Quản lý hóa đơn</a>
                 </li>
             </ul>
         </nav>

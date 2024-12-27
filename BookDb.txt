@@ -22,6 +22,7 @@ CREATE TABLE `books` (
   PRIMARY KEY (`BookID`),
   CONSTRAINT `fk_books_authors` FOREIGN KEY (`AuthorID`) REFERENCES `authors`(`AuthorID`) ON DELETE SET NULL,
   CONSTRAINT `fk_books_categories` FOREIGN KEY (`CategoryID`) REFERENCES `categories`(`CategoryID`) ON DELETE SET NULL
+  CONSTRAINT `fk_books_suppliers` FOREIGN KEY (`SupplierID`) REFERENCES `suppliers`(`SupplierID`) ON DELETE SET NULL
 );
 
 -- Tạo bảng ca  tegories với AUTO_INCREMENT
@@ -121,3 +122,22 @@ CREATE TABLE `bookpublishers` (
   `PublisherID` int(11) NOT NULL,
   PRIMARY KEY (`BookID`, `PublisherID`)
 );
+
+  SELECT 
+      o.OrderID,
+      o.OrderDate,
+      oi.BookID,
+      b.Title,
+      oi.Quantity,
+      oi.UnitPrice,
+      b.ImportPrice,
+      (oi.UnitPrice - b.ImportPrice) AS ProfitPerBook,  -- Lợi nhuận mỗi cuốn sách
+      (oi.Quantity * (oi.UnitPrice - b.ImportPrice)) AS TotalProfit -- Lợi nhuận tổng của tất cả sách trong đơn hàng
+  FROM 
+      orders o
+  JOIN 
+      orderitems oi ON o.OrderID = oi.OrderID
+  JOIN 
+      books b ON oi.BookID = b.BookID
+  ORDER BY 
+      o.OrderDate;

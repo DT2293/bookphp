@@ -68,7 +68,7 @@
                     SELECT b.BookID, b.title, a.Name AS author, b.price, b.CoverImageURL
                     FROM Books b
                     JOIN authors a ON b.AuthorID = a.AuthorID
-                    WHERE b.CategoryID = 1
+                    
                     
                 "; 
                 //LIMIT 4 OFFSET 1  
@@ -88,7 +88,7 @@
                                     Tác giả: <strong><?php echo htmlspecialchars($row['author']); ?></strong>
                                 </p>
                                 <p class="card-text text-primary fw-bold">
-                                    $<?php echo htmlspecialchars($row['price']); ?>
+                                <td><?php echo htmlspecialchars(number_format($row['price'], 0)); ?> VND</td>
                                 </p>
                             </div>
                             <div class="card-footer text-center">

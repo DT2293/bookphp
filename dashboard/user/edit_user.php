@@ -100,6 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <a href="../statistical/statistical.php" class="text-decoration-none text-dark hover-link">Quản lý Thống kê</a>
             <a href="../user/showuser.php" class="text-decoration-none text-dark hover-link">Quản lý người dùng</a>
             <a href="../book/showbook.php" class="text-decoration-none text-dark hover-link">Quản lý Sách</a>
+            <a href="../orders/showorders.php" class="text-decoration-none text-dark hover-link">Quản đơn hàng</a>
         </div>
 
         <!-- Nút đăng xuất -->

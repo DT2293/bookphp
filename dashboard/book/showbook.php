@@ -85,11 +85,13 @@ try {
             <a href="../statistical/statistical.php" class="text-decoration-none text-dark hover-link">Quản lý Thống kê</a>
             <a href="../../dashboard/user/showuser.php" class="text-decoration-none text-dark hover-link">Quản lý người dùng</a>
             <a href="" class="text-decoration-none text-dark hover-link">Quản lý Sách</a>
+            <a href="../orders/showorders.php" class="text-decoration-none text-dark hover-link">Quản lý hóa đơn</a>
+            <a href="../stock/stock.php" class="text-decoration-none text-dark hover-link">Quản lý kho hàng</a>
         </div>
         <a class="btn btn-danger" href="../../logout.php">Đăng xuất</a>
     </div>
 </div>
-<div class="container mt-5">
+ <div class="container mt-5">
     <h2 class="mb-4">Danh sách sách</h2>
     <form method="GET" action="showbook.php" class="mb-4">
         <div class="row mb-3 d-flex align-items-center">
@@ -139,7 +141,6 @@ try {
     <tr>
         <th>Tiêu đề</th>
         <th>Tác giả</th>
-        <th>Danh mục</th>
         <th>Giá nhập</th>
         <th>Giá bán</th>
         <th>Ngày xuất bản</th>
@@ -155,7 +156,6 @@ try {
             <tr>
                 <td><?php echo htmlspecialchars($book['Title']); ?></td>
                 <td><?php echo htmlspecialchars($book['AuthorName']); ?></td>
-                <td><?php echo htmlspecialchars($book['CategoryName']); ?></td>
                 <td><?php echo number_format($book['ImportPrice'], 2); ?> VND</td>
                 <td><?php echo number_format($book['Price'], 2); ?> VND</td>
                 <td><?php echo htmlspecialchars($book['PublishedDate']); ?></td>

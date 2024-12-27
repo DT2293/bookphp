@@ -33,7 +33,43 @@ $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <title>Quản lý Nhà Cung Cấp</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
+<style>
+        .hover-link:hover {
+            color: #6a11cb;
+            text-decoration: underline;
+            transition: color 0.3s ease, text-decoration 0.3s ease;
+        }
+        .container-header {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .nav-item {
+            margin-right: 20px;
+        }
+        .btn-logout {
+            margin-left: 20px;
+        }
+    </style>
 <body>
+ <header>
+ <div class="bg-light py-2 px-3">
+  <div class="container py-2 bg-light rounded shadow-sm">
+    <div class="d-flex align-items-center justify-content-between">
+        <p class="mb-0">
+            <strong>Xin chào, <?php echo htmlspecialchars($_SESSION['FullName'] ?? 'Admin'); ?></strong>
+        </p>
+        <div class="d-flex gap-4">
+            <a href="../admin.php" class="text-decoration-none text-dark hover-link">Home</a>
+            <a href="../statistical/statistical.php" class="text-decoration-none text-dark hover-link">Quản lý Thống kê</a>
+            <a href="../../dashboard/user/showuser.php" class="text-decoration-none text-dark hover-link">Quản lý người dùng</a>
+            <a href="../book/showbook.php   " class="text-decoration-none text-dark hover-link">Quản lý Sách</a>
+        </div>
+        <a class="btn btn-danger" href="../../logout.php">Đăng xuất</a>
+    </div>
+</div>
+</header>       
 <div class="container mt-5">
     <h2 class="mb-4">Quản lý Nhà Cung Cấp</h2>
     <a href="add_supplier.php" class="btn btn-success mb-3">Thêm Nhà Cung Cấp</a>

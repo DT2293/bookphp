@@ -56,34 +56,23 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </head>
 
 <body>
-<div class="bg-light py-2 px-3">
+<header>
+ <div class="bg-light py-2 px-3">
   <div class="container py-2 bg-light rounded shadow-sm">
     <div class="d-flex align-items-center justify-content-between">
-        <!-- Phần chào mừng -->
         <p class="mb-0">
             <strong>Xin chào, <?php echo htmlspecialchars($_SESSION['FullName'] ?? 'Admin'); ?></strong>
         </p>
-         
-        <style>
-            .hover-link:hover {
-                color: #6a11cb; /* Màu khi hover */
-                text-decoration: underline; /* Gạch chân khi hover */
-                transition: color 0.3s ease, text-decoration 0.3s ease; /* Hiệu ứng mượt */
-            }
-
-        </style>
-        <!-- Các liên kết quản lý -->
-        <div class="d-flex gap-4" >
+        <div class="d-flex gap-4">
             <a href="../admin.php" class="text-decoration-none text-dark hover-link">Home</a>
             <a href="../statistical/statistical.php" class="text-decoration-none text-dark hover-link">Quản lý Thống kê</a>
-            <a href="" class="text-decoration-none text-dark hover-link">Quản lý người dùng</a>
-            <a href="../book/showbook.php" class="text-decoration-none text-dark hover-link">Quản lý Sách</a>
+            <a href="../../dashboard/user/showuser.php" class="text-decoration-none text-dark hover-link">Quản lý người dùng</a>
+            <a href="../book/showbook.php   " class="text-decoration-none text-dark hover-link">Quản lý Sách</a>
         </div>
-
-        <!-- Nút đăng xuất -->
         <a class="btn btn-danger" href="../../logout.php">Đăng xuất</a>
     </div>
 </div>
+</header>  
 <div class="row mb-3 mt-3">
     <!-- Cột 1: Form tìm kiếm -->
     <div class="col-md-5">
