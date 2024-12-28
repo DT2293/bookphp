@@ -117,11 +117,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <strong>Xin chào, <?php echo htmlspecialchars($_SESSION['FullName'] ?? 'Admin'); ?></strong>
         </p>
         <div class="d-flex gap-4">
-            <a href="../admin.php" class="text-decoration-none text-dark hover-link">Home</a>
-            <a href="../statistical/statistical.php" class="text-decoration-none text-dark hover-link">Quản lý Thống kê</a>
-            <a href="../../dashboard/user/showuser.php" class="text-decoration-none text-dark hover-link">Quản lý người dùng</a>
-            <a href="" class="text-decoration-none text-dark hover-link">Quản lý Sách</a>
-            <a href="../orders/showorders.php" class="text-decoration-none text-dark hover-link">Quản lý hóa đơn</a>
+        <a href="../admin.php" class="text-decoration-none text-dark hover-link">Home</a>
+                <a href="../statistical/statistical.php" class="text-decoration-none text-dark hover-link">Quản lý Thống kê</a>
+                <a href="../dashboard/user/showuser.php" class="text-decoration-none text-dark hover-link">Quản lý người dùng</a>
+                <a href="../book/showbook.php   " class="text-decoration-none text-dark hover-link">Quản lý Sách</a>
+                <a href="../orders/showorders.php" class="text-decoration-none text-dark hover-link">Quản đơn hàng</a>
+                <a href="../stock/stock.php" class="text-decoration-none text-dark hover-link">Quản Kho hàng</a>
         </div>
         <a class="btn btn-danger" href="../../logout.php">Đăng xuất</a>
     </div>
@@ -130,20 +131,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <div class="container mt-5">
     <h2 class="mb-4">Chọn Nhà Cung Cấp để Xem Sách</h2>
 
-    <form method="GET" action="">
-        <div class="mb-3">
-            <label for="supplier_id" class="form-label">Chọn Nhà Cung Cấp</label>
-            <select class="form-select" name="supplier_id" id="supplier_id" required>
-                <option value="" disabled selected>-- Chọn Nhà Cung Cấp --</option>
-                <?php foreach ($suppliers as $supplier): ?>
-                    <option value="<?= $supplier['SupplierID'] ?>" <?= ($supplier['SupplierID'] == $supplierID) ? 'selected' : '' ?>>
-                        <?= htmlspecialchars($supplier['Name']) ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-        </div>
-        <button type="submit" class="btn btn-primary">Lọc Sách</button>
-    </form>
+    <form method="GET" action="" class="d-flex align-items-center mb-3">
+    <div class="me-3 flex-grow-1">
+        <label for="supplier_id" class="form-label">Chọn Nhà Cung Cấp</label>
+        <select class="form-select" name="supplier_id" id="supplier_id" required>
+            <option value="" disabled selected>-- Chọn Nhà Cung Cấp --</option>
+            <?php foreach ($suppliers as $supplier): ?>
+                <option value="<?= $supplier['SupplierID'] ?>" <?= ($supplier['SupplierID'] == $supplierID) ? 'selected' : '' ?>>
+                    <?= htmlspecialchars($supplier['Name']) ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary align-self-end">Lọc</button>
+</form>
 
     <?php if ($supplierID && count($books) > 0): ?>
         <h3 class="mt-4">Sách từ Nhà Cung Cấp: <?= htmlspecialchars($suppliers[array_search($supplierID, array_column($suppliers, 'SupplierID'))]['Name']) ?></h3>

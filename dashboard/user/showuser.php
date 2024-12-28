@@ -56,7 +56,6 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </head>
 
 <body>
-<header>
  <div class="bg-light py-2 px-3">
   <div class="container py-2 bg-light rounded shadow-sm">
     <div class="d-flex align-items-center justify-content-between">
@@ -68,11 +67,12 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <a href="../statistical/statistical.php" class="text-decoration-none text-dark hover-link">Quản lý Thống kê</a>
             <a href="../../dashboard/user/showuser.php" class="text-decoration-none text-dark hover-link">Quản lý người dùng</a>
             <a href="../book/showbook.php   " class="text-decoration-none text-dark hover-link">Quản lý Sách</a>
+            <a href="../orders/showorders.php" class="text-decoration-none text-dark hover-link">Quản đơn hàng</a>
+            <a href="../stock/stock.php" class="text-decoration-none text-dark hover-link">Quản Kho hàng</a>
         </div>
         <a class="btn btn-danger" href="../../logout.php">Đăng xuất</a>
     </div>
-</div>
-</header>  
+</div> 
 <div class="row mb-3 mt-3">
     <!-- Cột 1: Form tìm kiếm -->
     <div class="col-md-5">

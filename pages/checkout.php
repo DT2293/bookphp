@@ -2,6 +2,15 @@
 include '../includes/header.php';
 include '../includes/db.php';
 
+// Check if the user is logged in
+if (!isset($_SESSION['CustomerID'])) {
+    header("Location: ../auth/login_page.php");
+    exit;
+}
+
+// Get the logged-in customer's ID
+$customerID = $_SESSION['CustomerID'];
+
 // Kiểm tra nếu giỏ hàng trống
 if (!isset($_SESSION['cart']) || empty($_SESSION['cart'])) {
     echo "<main class='container mt-5'><p>Giỏ hàng của bạn đang trống. <a href='../pages/cart.php'>Quay lại giỏ hàng</a>.</p></main>";
@@ -11,6 +20,10 @@ if (!isset($_SESSION['cart']) || empty($_SESSION['cart'])) {
 // Lấy thông tin sách trong giỏ hàng
 $cartItems = [];
 $total = 0;
+$quantityTotal = 0;  // Tổng số lượng sách trong giỏ hàng để tính giảm giá
+$discountAmount = 0; // Mức giảm giá từ bảng sale
+
+// Tính toán tổng số lượng sách và tổng tiền
 foreach ($_SESSION['cart'] as $bookId => $item) {
     $stmt = $conn->prepare("SELECT * FROM books WHERE BookID = ?");
     $stmt->execute([$bookId]);
@@ -20,6 +33,8 @@ foreach ($_SESSION['cart'] as $bookId => $item) {
         $price = $book['Price'];
         $subtotal = $price * $quantity;
         $total += $subtotal;
+        $quantityTotal += $quantity;  // Cộng dồn tổng số lượng sách trong giỏ
+
         $cartItems[] = [
             'book' => $book,
             'quantity' => $quantity,
@@ -27,8 +42,21 @@ foreach ($_SESSION['cart'] as $bookId => $item) {
         ];
     }
 }
-?>
 
+// Tính toán giảm giá dựa trên số lượng sách
+$stmt = $conn->prepare("SELECT * FROM sale WHERE MinQuantity <= ? AND (MaxQuantity IS NULL OR MaxQuantity >= ?)");
+$stmt->execute([$quantityTotal, $quantityTotal]);
+$sale = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if ($sale) {
+    $discountAmount = $sale['DiscountAmount']; // Mức giảm giá từ bảng sale
+    $total -= $discountAmount;  // Áp dụng mức giảm giá vào tổng tiền
+} else {
+    $discountAmount = 0;  // Không có mức giảm nếu không thỏa mãn điều kiện
+}
+
+// Giới thiệu thông tin giỏ hàng và mức giảm giá
+?>
 <main class="container mt-5">
     <h2 class="mb-4">Thanh toán</h2>
     <div class="row">
@@ -57,6 +85,12 @@ foreach ($_SESSION['cart'] as $bookId => $item) {
                         <td colspan="2"><strong>Tổng cộng</strong></td>
                         <td><strong><?= number_format($total, 0, ',', '.') ?> VNĐ</strong></td>
                     </tr>
+                    <?php if ($discountAmount > 0): ?>
+                        <tr>
+                            <td colspan="2"><strong>Giảm giá</strong></td>
+                            <td><strong>- <?= number_format($discountAmount, 0, ',', '.') ?> VNĐ</strong></td>
+                        </tr>
+                    <?php endif; ?>
                 </tfoot>
             </table>
         </div>
@@ -64,7 +98,7 @@ foreach ($_SESSION['cart'] as $bookId => $item) {
         <!-- Form nhập thông tin thanh toán -->
         <div class="col-md-6">
             <h4 class="mb-3">Thông tin thanh toán</h4>
-            <form action="process_checkout.php" method="POST">
+            <form id="checkout-form">
                 <div class="mb-3">
                     <label for="Fullname" class="form-label">Họ và tên</label>
                     <input type="text" class="form-control" id="name" name="name" required>
@@ -89,37 +123,34 @@ foreach ($_SESSION['cart'] as $bookId => $item) {
         </div>
     </div>
 </main>
+
 <script>
-    function checkout() {
-        var email = document.getElementById('email').value;
-        var phone = document.getElementById('phone').value;
-        var address = document.getElementById('address').value;
+    document.getElementById('checkout-form').addEventListener('submit', function(e) {
+        e.preventDefault(); // Ngừng gửi form bình thường
 
-        var formData = new FormData();
-        formData.append('email', email);
-        formData.append('phone', phone);
-        formData.append('address', address);
+        var formData = new FormData(this);
 
-        // Gửi AJAX request đến process_checkout.php
-        var xhr = new XMLHttpRequest();
-        xhr.open('POST', 'process_checkout.php', true);
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState == 4 && xhr.status == 200) {
-                var response = JSON.parse(xhr.responseText);
-
-                if (response.status === 'success') {
-                    // Hiển thị thông báo thành công
-                    alert("Thanh toán thành công! Mã đơn hàng của bạn là: " + response.orderId);
-
-                    // Chuyển hướng về trang index
-                    window.location.href = 'index.php';
-                } else {
-                    // Hiển thị lỗi nếu có
-                    alert(response.message);
-                }
+        // Gửi yêu cầu AJAX đến server
+        fetch('process_checkout.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Hiển thị thông báo thành công
+                alert("Thanh toán thành công! Mã đơn hàng của bạn là: " + data.orderId);
+                // Chuyển hướng về trang index
+                window.location.href = '../pages/index.php';
+            } else {
+                // Hiển thị thông báo lỗi
+                alert(data.message);
             }
-        };
-        xhr.send(formData);
-    }
-</script>
+        })
+        .catch(error => {
+            console.error('Có lỗi xảy ra:', error);
+            alert('Đã xảy ra lỗi khi thanh toán.');
+        });
+    });
+</script> 
 

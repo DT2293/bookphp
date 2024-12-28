@@ -113,6 +113,9 @@ try {
                 <li class="nav-item">
                     <a href="../orders/showorders.php" class="nav-link text-dark hover-link">Quản lý hóa đơn</a>
                 </li>
+                <li class="nav-item">
+                    <a href="../stock/stock.php" class="nav-link text-dark hover-link">Quản lý kho hàng</a>
+                </li>
             </ul>
         </nav>
         <a href="../../logout.php" class="btn btn-danger btn-sm btn-logout">Đăng xuất</a>

@@ -1,39 +1,94 @@
 <?php
-session_start();
 include '../includes/db.php';
+session_start();
 
-if (!isset($_SESSION['cart']) || empty($_SESSION['cart'])) {
-    echo "<script>alert('Giỏ hàng của bạn đang trống. Không thể thanh toán.'); window.location.href = '../pages/cart.php';</script>";
-    exit;
-}
-
-// Kiểm tra thông tin người dùng
+// Kiểm tra nếu người dùng chưa đăng nhập
 if (!isset($_SESSION['CustomerID'])) {
-    echo "<script>alert('Bạn cần đăng nhập trước khi thanh toán.'); window.location.href = '../auth/login_page.php';</script>";
+    header("Location: ../auth/login_page.php");
     exit;
 }
 
-// Nhận thông tin từ POST
-$customerId = $_SESSION['CustomerID'];
-$name = $_POST['name'] ?? '';
-$email = $_POST['email'] ?? '';
-$phone = $_POST['phone'] ?? '';
-$address = $_POST['address'] ?? '';
+// Lấy ID khách hàng
+$customerID = $_SESSION['CustomerID'];
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    try {
+try {
+    // Kiểm tra nếu giỏ hàng trống
+    if (!isset($_SESSION['cart']) || empty($_SESSION['cart'])) {
+        echo json_encode(['status' => 'error', 'message' => 'Giỏ hàng của bạn đang trống.']);
+        exit;
+    }
+
+    // Kiểm tra nếu có thông tin thanh toán từ form
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        // Lấy thông tin từ form và bảo vệ chống XSS
+        $name = htmlspecialchars($_POST['name'] ?? '');
+        $email = htmlspecialchars($_POST['email'] ?? '');
+        $phone = htmlspecialchars($_POST['phone'] ?? '');
+        $address = htmlspecialchars($_POST['address'] ?? '');
+
+        // Kiểm tra tính hợp lệ của các trường nhập
+        if (empty($name) || empty($email) || empty($phone) || empty($address)) {
+            echo json_encode(['status' => 'error', 'message' => 'Vui lòng điền đầy đủ thông tin.']);
+            exit;
+        }
+
+        // Kiểm tra định dạng email và số điện thoại (ví dụ đơn giản)
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            echo json_encode(['status' => 'error', 'message' => 'Email không hợp lệ.']);
+            exit;
+        }
+
+        if (!preg_match('/^\d{10,11}$/', $phone)) {
+            echo json_encode(['status' => 'error', 'message' => 'Số điện thoại không hợp lệ.']);
+            exit;
+        }
+
+        // Bắt đầu transaction để đảm bảo tính toàn vẹn dữ liệu
         $conn->beginTransaction();
 
-        // Thêm đơn hàng
-        $stmt = $conn->prepare("INSERT INTO orders (CustomerID, TotalAmount, Status) VALUES (?, ?, 'Pending')");
-        $totalAmount = array_sum(array_map(function ($item) {
-            return $item['quantity'] * $item['price'];
-        }, $_SESSION['cart']));
-        $stmt->execute([$customerId, $totalAmount]);
+        // Lấy thông tin giỏ hàng và tính tổng
+        $cartItems = $_SESSION['cart'];
+        $total = 0;
+        $totalQuantity = 0; // Tổng số lượng sách trong giỏ hàng
+        foreach ($cartItems as $bookId => $item) {
+            $stmt = $conn->prepare("SELECT * FROM books WHERE BookID = ?");
+            $stmt->execute([$bookId]);
+            $book = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($book) {
+                $quantity = $item['quantity'];
+                $price = $book['Price'];
+                $total += $price * $quantity;
+                $totalQuantity += $quantity;
+            }
+        }
+
+        // Kiểm tra và áp dụng chương trình giảm giá
+        $stmt = $conn->prepare("SELECT * FROM sale WHERE MinQuantity <= ? AND (MaxQuantity IS NULL OR MaxQuantity >= ?)");
+        $stmt->execute([$totalQuantity, $totalQuantity]);
+        $sale = $stmt->fetch(PDO::FETCH_ASSOC);
+        $discountAmount = 0;
+
+        if ($sale) {
+            $discountAmount = $sale['DiscountAmount'];
+            $total -= $discountAmount; // Trừ giảm giá vào tổng tiền
+            $saleId = $sale['SaleID']; // Lưu SaleID để sử dụng khi cập nhật đơn hàng
+        }
+
+        // Thực hiện thêm đơn hàng vào bảng `orders`
+        $stmt = $conn->prepare("INSERT INTO orders (CustomerID, OrderDate, TotalAmount, Status, SaleID) VALUES (?, NOW(), ?, 'Pending', ?)");
+        $stmt->execute([$customerID, $total, $saleId ?? NULL]);
+
+        // Lấy ID của đơn hàng vừa tạo
         $orderId = $conn->lastInsertId();
 
-        // Xử lý các sản phẩm trong giỏ hàng
-        foreach ($_SESSION['cart'] as $bookId => $item) {
+        // Cập nhật lại TotalAmount nếu có giảm giá
+        if ($sale) {
+            $stmt = $conn->prepare("UPDATE orders SET TotalAmount = ? WHERE OrderID = ?");
+            $stmt->execute([$total, $orderId]);
+        }
+
+        // Cập nhật kho và ghi giao dịch xuất kho
+        foreach ($cartItems as $bookId => $item) {
             $quantity = $item['quantity'];
             $unitPrice = $item['price'];
 
@@ -59,27 +114,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute([$orderId, $bookId, $quantity, $unitPrice]);
         }
 
-        // Hoàn tất giao dịch
+        // Sau khi tạo đơn hàng và chi tiết, xóa giỏ hàng
+        unset($_SESSION['cart']);
+
+        // Commit transaction
         $conn->commit();
-        unset($_SESSION['cart']); // Xóa giỏ hàng sau khi thanh toán
 
-        echo "<script>
-            alert('Thanh toán thành công! Mã đơn hàng của bạn là: $orderId');
-            window.location.href = '../pages/index.php';
-        </script>";
-        exit;
-
-    } catch (Exception $e) {
-        $conn->rollBack();
-        echo "<script>
-            alert('Đã xảy ra lỗi: " . $e->getMessage() . "');
-            window.location.href = '../pages/cart.php';
-        </script>";
+        // Gửi phản hồi về mã đơn hàng và thông báo thành công
+        echo json_encode([
+            'status' => 'success',
+            'message' => 'Thanh toán thành công!',
+            'orderId' => $orderId
+        ]);
     }
-} else {
-    echo "<script>
-        alert('Yêu cầu không hợp lệ.');
-        window.location.href = '../pages/cart.php';
-    </script>";
+} catch (Exception $e) {
+    // Rollback transaction nếu có lỗi xảy ra
+    $conn->rollBack();
+
+    // Gửi thông báo lỗi
+    echo json_encode([
+        'status' => 'error',
+        'message' => 'Đã xảy ra lỗi: ' . $e->getMessage()
+    ]);
 }
 ?>
