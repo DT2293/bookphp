@@ -1,4 +1,4 @@
-# 📚 Bookstore Management System (Pure PHP)
+# 📚 Bookstore Management System PHP
 
 A web-based eCommerce application for managing a bookstore, developed using PHP. This system enables both store administrators and customers to interact through a clean and functional interface.
 
