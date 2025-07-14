@@ -84,12 +84,12 @@ if (isset($_GET['OrderID']) && is_numeric($_GET['OrderID'])) {
             <strong>Xin chào, <?php echo htmlspecialchars($_SESSION['FullName'] ?? 'Admin'); ?></strong>
         </p>
         <div class="d-flex gap-4">
-            <a href="../admin.php" class="text-decoration-none text-dark hover-link">Home</a>
-            <a href="../statistical/statistical.php" class="text-decoration-none text-dark hover-link">Quản lý Thống kê</a>
-            <a href="../../dashboard/user/showuser.php" class="text-decoration-none text-dark hover-link">Quản lý người dùng</a>
-            <a href="" class="text-decoration-none text-dark hover-link">Quản lý Sách</a>
-            <a href="../orders/showorders.php" class="text-decoration-none text-dark hover-link">Quản lý hóa đơn</a>
-            <a href="../stock/stock.php" class="text-decoration-none text-dark hover-link">Quản lý kho hàng</a>
+        <a href="../admin.php" class="text-decoration-none text-dark hover-link">Home</a>
+                <a href="../statistical/statistical.php" class="text-decoration-none text-dark hover-link">Quản lý Thống kê</a>
+                <a href="../dashboard/user/showuser.php" class="text-decoration-none text-dark hover-link">Quản lý người dùng</a>
+                <a href="../book/showbook.php   " class="text-decoration-none text-dark hover-link">Quản lý Sách</a>
+                <a href="../orders/showorders.php" class="text-decoration-none text-dark hover-link">Quản đơn hàng</a>
+                <a href="../stock/stock.php" class="text-decoration-none text-dark hover-link">Quản Kho hàng</a>
         </div>
         <a class="btn btn-danger" href="../../logout.php">Đăng xuất</a>
     </div>

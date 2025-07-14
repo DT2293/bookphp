@@ -13,9 +13,14 @@ if (isset($_GET['OrderID'])) {
     if ($stmt->execute()) {
         // Trả về phản hồi thành công
         echo json_encode(['success' => true, 'message' => 'Đơn hàng đã được xác nhận!']);
+        
+        // Chuyển hướng về trang showorder.php
+        header("Location: showorders.php");
+        exit(); // Dừng script tiếp theo
     } else {
         // Trả về phản hồi lỗi
         echo json_encode(['success' => false, 'message' => 'Có lỗi xảy ra, vui lòng thử lại.']);
     }
 }
 ?>
+

@@ -158,7 +158,7 @@ $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <a href="order_details.php?OrderID=<?= $order['OrderID'] ?>" class="btn btn-info btn-sm">Xem</a>
                             <?php if ($order['Status'] === 'Pending'): ?>
                                 <a href="delete_order.php?OrderID=<?= $order['OrderID'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('Bạn có chắc muốn xóa đơn hàng này?');">Xóa</a>
-                                <button class="btn btn-success btn-sm">Xác nhận</button>
+                                <a href="confirm_order.php?OrderID=<?= $order['OrderID'] ?>" class="btn btn-success btn-sm" onclick="return confirm('Bạn có chắc muốn xác nhận hàng này?');">Xác nhận</a>
                             <?php endif; ?>
                         </td>
                     </tr>

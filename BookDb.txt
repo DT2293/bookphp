@@ -29,9 +29,6 @@
       CONSTRAINT `fk_books_categories` FOREIGN KEY (`CategoryID`) REFERENCES `categories`(`CategoryID`) ON DELETE SET NULL
       CONSTRAINT `fk_books_suppliers` FOREIGN KEY (`SupplierID`) REFERENCES `suppliers`(`SupplierID`) ON DELETE SET NULL
     );
-
-  
-
     -- Tạo bảng customers với AUTO_INCREMENT
     CREATE TABLE `customers` (
       `CustomerID` int(11) NOT NULL AUTO_INCREMENT,

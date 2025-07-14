@@ -103,15 +103,11 @@
             color: #2575fc;
         }
     </style>
-    <?php
-    $error = isset($_GET['error']) ? htmlspecialchars($_GET['error']) : null;
-    ?>
+  <?php if (isset($_GET['error'])): ?>
     <script>
-        const errorMessage = "<?php echo $error; ?>";
-        if (errorMessage) {
-            alert(errorMessage);
-        }
+        alert("<?php echo htmlspecialchars($_GET['error'], ENT_QUOTES, 'UTF-8'); ?>");
     </script>
+<?php endif; ?>
 </head>
 <body>
     <div class="register-container">

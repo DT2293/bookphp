@@ -2,49 +2,80 @@
 include '../../includes/db.php';
 session_start();
 
+// Redirect to login if the user is not logged in or doesn't have Admin role
 if (!isset($_SESSION['CustomerID']) || $_SESSION['role'] !== 'Admin') {
     header("Location: ../auth/login_page.php");
     exit;
 }
 
 $bookName = isset($_GET['bookName']) ? trim($_GET['bookName']) : '';
-$authorID = isset($_GET['author']) ? $_GET['author'] : '';
-$categoryID = isset($_GET['category']) ? $_GET['category'] : '';
+$authorID = isset($_GET['author']) ? (int)$_GET['author'] : '';
+$categoryID = isset($_GET['category']) ? (int)$_GET['category'] : '';
 
-$sql = "SELECT b.BookID, b.Title, SUM(s.Quantity) AS TotalStock, a.Name AS AuthorName, c.CategoryName, b.ImportPrice, b.Price, b.PublishedDate, b.Description
-        FROM Books b
-        LEFT JOIN Authors a ON b.AuthorID = a.AuthorID
-        LEFT JOIN Categories c ON b.CategoryID = c.CategoryID
-        LEFT JOIN Stock s ON b.BookID = s.BookID
-        WHERE 1";
+// Query to fetch the total stock for a book
+$bookId = isset($_GET['bookId']) ? (int)$_GET['bookId'] : 0; // Ensure bookId is valid
 
+$totalStock = 0;
+if ($bookId > 0) {
+    $stmt = $conn->prepare("
+        SELECT SUM(Quantity) AS TotalStock
+        FROM stock
+        WHERE BookID = :bookId
+    ");
+    $stmt->bindParam(':bookId', $bookId, PDO::PARAM_INT);
+    $stmt->execute();
+    $stock = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    $totalStock = $stock['TotalStock'] ?? 0; // Default to 0 if no stock found
+}
+
+// Constructing the main query to fetch book details
+$sql = "
+    SELECT 
+        b.BookID, b.Title, 
+        SUM(s.Quantity) AS TotalStock, 
+        a.Name AS AuthorName, 
+        c.CategoryName, 
+        b.ImportPrice, 
+        b.Price, 
+        b.PublishedDate, 
+        b.Description
+    FROM Books b
+    LEFT JOIN Authors a ON b.AuthorID = a.AuthorID
+    LEFT JOIN Categories c ON b.CategoryID = c.CategoryID
+    LEFT JOIN Stock s ON b.BookID = s.BookID
+    WHERE 1
+";
+
+// Prepare the query parameters
 $params = [];
 
 if ($bookName !== '') {
-    $sql .= " AND b.Title LIKE ?";
-    $params[] = "%$bookName%";
+    $sql .= " AND b.Title LIKE :bookName";
+    $params[':bookName'] = "%$bookName%";
 }
 
-if ($authorID !== '') {
-    $sql .= " AND b.AuthorID = ?";
-    $params[] = $authorID;
+if ($authorID > 0) {
+    $sql .= " AND b.AuthorID = :authorID";
+    $params[':authorID'] = $authorID;
 }
 
-if ($categoryID !== '') {
-    $sql .= " AND b.CategoryID = ?";
-    $params[] = $categoryID;
+if ($categoryID > 0) {
+    $sql .= " AND b.CategoryID = :categoryID";
+    $params[':categoryID'] = $categoryID;
 }
 
-$sql .= " GROUP BY b.BookID"; // Đảm bảo nhóm theo BookID để tính tổng tồn kho cho từng cuốn sách
+$sql .= " GROUP BY b.BookID"; // Ensure grouping by BookID to calculate total stock for each book
 
 try {
     $stmt = $conn->prepare($sql);
     $stmt->execute($params);
     $books = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
-    die("Lỗi truy vấn cơ sở dữ liệu: " . $e->getMessage());
+    die("Database query error: " . $e->getMessage());
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">

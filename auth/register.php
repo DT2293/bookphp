@@ -17,7 +17,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         if ($stmt->rowCount() > 0) {
             // Email đã tồn tại, trả về với thông báo lỗi
-            header("Location: register_form.php?error=" . urlencode("Email đã tồn tại. Vui lòng sử dụng email khác!"));
+            header("Location: register_page.php?error=" . urlencode("Email đã tồn tại. Vui lòng sử dụng email khác!"));
             exit();
         }
 
@@ -35,7 +35,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         if ($stmt->execute()) {
             // Đăng ký thành công, chuyển về trang đăng nhập
-            header("Location: login.php?success=" . urlencode("Đăng ký thành công! Vui lòng đăng nhập."));
+            header("Location:  login_page.php?success=" . urlencode("Đăng ký thành công! Vui lòng đăng nhập."));
             exit();
         } else {
             // Đăng ký thất bại
@@ -43,7 +43,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             exit();
         }
     } catch (PDOException $e) {
-        // Xử lý lỗi hệ thống
         header("Location: register_form.php?error=" . urlencode("Lỗi hệ thống: " . $e->getMessage()));
         exit();
     }
